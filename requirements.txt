@@ -1,0 +1,8 @@
+flask
+flask-smorest
+flask-pymongo
+flask-jwt-extended
+flask-cors
+flask-limiter
+marshmallow
+python-dotenv

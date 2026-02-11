@@ -1,0 +1,7 @@
+from marshmallow import Schema, fields
+
+class RoleSchema(Schema):
+    _id = fields.Integer(dump_only=True)
+    name = fields.String(required=True)
+    permissions = fields.Dict(keys=fields.String(), values=fields.Raw(), required=True)
+    created_at = fields.DateTime(dump_only=True)
