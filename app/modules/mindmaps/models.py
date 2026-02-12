@@ -1,15 +1,14 @@
 from datetime import datetime
 
 class Mindmap:
-    def __init__(self, document_id, nodes=None):
-        self.document_id = document_id
-        self.nodes = nodes or {}
+    def __init__(self, documentId, nodes=None):
+        self.documentId = documentId
         self.nodes = nodes or {}
         self.updatedAt = datetime.utcnow()
 
     def to_dict(self):
         return {
-            "documentId": self.document_id,
+            "documentId": self.documentId,
             "nodes": self.nodes,
             "updatedAt": self.updatedAt
         }

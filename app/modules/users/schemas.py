@@ -23,7 +23,7 @@ class UserUpdateSchema(Schema):
     username = fields.String()
     email = fields.Email()
     password = fields.String(load_only=True)
-    name = fields.String()
+    name = fields.String(allow_none=True)
     status = fields.String()
     roleId = fields.String(validate=validate_object_id)
 

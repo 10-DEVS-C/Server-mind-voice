@@ -1,14 +1,14 @@
 from datetime import datetime
 
 class AiAnalysis:
-    def __init__(self, transcription_id, result):
-        self.transcription_id = transcription_id
+    def __init__(self, transcriptionId, result):
+        self.transcriptionId = transcriptionId
         self.result = result
         self.createdAt = datetime.utcnow()
 
     def to_dict(self):
         return {
-            "transcriptionId": self.transcription_id,
+            "transcriptionId": self.transcriptionId,
             "result": self.result,
             "createdAt": self.createdAt
         }

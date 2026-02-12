@@ -1,16 +1,16 @@
 from datetime import datetime
 
 class Folder:
-    def __init__(self, user_id, name, parent_folder_id=None):
-        self.user_id = user_id
+    def __init__(self, userId, name, parentFolderId=None):
+        self.userId = userId
         self.name = name
-        self.parent_folder_id = parent_folder_id
+        self.parentFolderId = parentFolderId
         self.createdAt = datetime.utcnow()
 
     def to_dict(self):
         return {
-            "userId": self.user_id,
+            "userId": self.userId,
             "name": self.name,
-            "parentFolderId": self.parent_folder_id,
+            "parentFolderId": self.parentFolderId,
             "createdAt": self.createdAt
         }
