@@ -11,6 +11,13 @@ This is a production-ready, modular Flask API base with MongoDB, JWT Authenticat
 - **Documentation**: Auto-generated Swagger UI via `flask-smorest`.
 - **Security**: Rate limiting, CORS, and secure headers.
 - **Base Classes**: Generic Service and Controller patterns for CRUD.
+- **Microservices Ready**: Designed to be extended into microservices.
+
+## ID Handling
+All IDs (Primary Keys and Foreign Keys) are handled as **MongoDB ObjectIds** (24-character hex strings).
+- **Frontend**: Should send and receive IDs as strings.
+- **Backend**: Automatically validates and converts strings to `bson.ObjectId` in the Service layer.
+- **Database**: Stores them as native `ObjectId` for performance and consistency.
 
 ## Setup
 
@@ -20,9 +27,10 @@ This is a production-ready, modular Flask API base with MongoDB, JWT Authenticat
     ```
 
 2.  **Configuration**:
+    -   Copy `.env.example` to `.env` (if available) or create one.
     -   Set `FLASK_ENV` to `development` or `production`.
     -   Set `MONGO_URI` and `JWT_SECRET_KEY` in your environment variables.
-    -   Default Mongo URI: `mongodb://localhost:27017/flask_base_db`
+    -   Default Mongo URI: `mongodb://localhost:27017/mind_voice_db`
 
 3.  **Run the Application**:
     ```bash

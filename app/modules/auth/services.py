@@ -13,9 +13,9 @@ class AuthService:
             return None
             
         # user_data is a dict from mongodb, we need to verify password
-        # stored password hash is in user_data['password_hash']
-        if User.verify_password(user_data['password_hash'], password):
-            access_token = create_access_token(identity=str(user_data['_id']))
+        # stored password hash is in user_data['passwordHash']
+        if User.verify_password(user_data['passwordHash'], password):
+            access_token = create_access_token(identity=str(user_data['_id']), additional_claims={"name": user_data.get("name")})
             return access_token
         
         return None

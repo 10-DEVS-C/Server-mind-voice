@@ -5,12 +5,14 @@ class ActivityLog:
         self.user_id = user_id
         self.action = action
         self.ip = ip
-        self.created_at = datetime.utcnow()
+        self.action = action
+        self.ip = ip
+        self.createdAt = datetime.utcnow()
 
     def to_dict(self):
         return {
             "userId": self.user_id,
             "action": self.action,
             "ip": self.ip,
-            "created_at": self.created_at
+            "createdAt": self.createdAt
         }

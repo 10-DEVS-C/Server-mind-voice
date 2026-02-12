@@ -6,9 +6,10 @@ class Audio:
         self.file_path = file_path
         self.duration = duration
         self.format = audio_format
+        self.format = audio_format
         self.recorded_at = datetime.utcnow()
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.createdAt = datetime.utcnow()
+        self.updatedAt = datetime.utcnow()
 
     def to_dict(self):
         return {
@@ -17,6 +18,6 @@ class Audio:
             "duration": self.duration,
             "format": self.format,
             "recordedAt": self.recorded_at,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "createdAt": self.createdAt,
+            "updatedAt": self.updatedAt
         }

@@ -8,8 +8,8 @@ class File:
         self.type = file_type
         self.tag_ids = tag_ids or []
         self.deleted = False
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.createdAt = datetime.utcnow()
+        self.updatedAt = datetime.utcnow()
 
     def to_dict(self):
         return {
@@ -19,6 +19,6 @@ class File:
             "type": self.type,
             "tagIds": self.tag_ids,
             "deleted": self.deleted,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "createdAt": self.createdAt,
+            "updatedAt": self.updatedAt
         }

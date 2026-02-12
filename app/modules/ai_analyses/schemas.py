@@ -1,5 +1,7 @@
 from marshmallow import Schema, fields
 
+from app.core.validations import validate_object_id
+
 class ActionSchema(Schema):
     accion = fields.String(required=True)
     prioridad = fields.String(required=True)
@@ -11,7 +13,7 @@ class AnalysisResultSchema(Schema):
     sentimiento = fields.String()
 
 class AiAnalysisSchema(Schema):
-    _id = fields.Integer(dump_only=True)
-    transcriptionId = fields.Integer(required=True)
+    _id = fields.String(dump_only=True)
+    transcriptionId = fields.String(required=True, validate=validate_object_id)
     result = fields.Nested(AnalysisResultSchema, required=True)
-    created_at = fields.DateTime(dump_only=True)
+    createdAt = fields.DateTime(dump_only=True)

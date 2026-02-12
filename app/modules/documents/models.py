@@ -7,8 +7,8 @@ class Document:
         self.title = title
         self.type = doc_type
         self.content = content or {}
-        self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+        self.createdAt = datetime.utcnow()
+        self.updatedAt = datetime.utcnow()
 
     def to_dict(self):
         return {
@@ -17,6 +17,6 @@ class Document:
             "title": self.title,
             "type": self.type,
             "content": self.content,
-            "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "createdAt": self.createdAt,
+            "updatedAt": self.updatedAt
         }

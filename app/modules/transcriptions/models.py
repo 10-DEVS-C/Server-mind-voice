@@ -5,12 +5,12 @@ class Transcription:
         self.audio_id = audio_id
         self.text = text
         self.timestamps = timestamps or []
-        self.created_at = datetime.utcnow()
+        self.createdAt = datetime.utcnow()
 
     def to_dict(self):
         return {
             "audioId": self.audio_id,
             "text": self.text,
             "timestamps": self.timestamps,
-            "created_at": self.created_at
+            "createdAt": self.createdAt
         }

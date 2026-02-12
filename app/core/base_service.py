@@ -1,7 +1,6 @@
 from bson import ObjectId
 from app.extensions import mongo
 from typing import List, Optional, Dict, Any, Union
-from .sequence_service import SequenceService
 
 class BaseService:
     collection_name: str = None
@@ -15,9 +14,6 @@ class BaseService:
 
     @classmethod
     def create(cls, data: Dict[str, Any]) -> Union[str, int]:
-        if cls.id_type == int:
-            data["_id"] = SequenceService.get_next_id(cls.collection_name)
-        
         result = cls.get_collection().insert_one(data)
         return result.inserted_id
 

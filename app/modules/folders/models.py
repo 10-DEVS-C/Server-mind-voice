@@ -5,12 +5,12 @@ class Folder:
         self.user_id = user_id
         self.name = name
         self.parent_folder_id = parent_folder_id
-        self.created_at = datetime.utcnow()
+        self.createdAt = datetime.utcnow()
 
     def to_dict(self):
         return {
             "userId": self.user_id,
             "name": self.name,
             "parentFolderId": self.parent_folder_id,
-            "created_at": self.created_at
+            "createdAt": self.createdAt
         }

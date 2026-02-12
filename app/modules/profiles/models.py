@@ -9,12 +9,12 @@ class Profile:
             "language": "es",
             "notifications": True
         }
-        self.updated_at = datetime.utcnow()
+        self.updatedAt = datetime.utcnow()
 
     def to_dict(self):
         return {
             "userId": self.user_id,
             "photo": self.photo,
             "preferences": self.preferences,
-            "updated_at": self.updated_at
+            "updatedAt": self.updatedAt
         }
