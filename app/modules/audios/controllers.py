@@ -22,7 +22,7 @@ class AudioList(MethodView):
         audio_id = AudioService.create(new_data)
         return AudioService.get_by_id(audio_id)
 
-@blp.route("/<int:audio_id>")
+@blp.route("/<string:audio_id>")
 class AudioResource(MethodView):
     @blp.response(200, AudioSchema)
     @jwt_required()

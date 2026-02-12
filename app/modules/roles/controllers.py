@@ -19,7 +19,7 @@ class RoleList(MethodView):
         role_id = RoleService.create(new_data)
         return RoleService.get_by_id(role_id)
 
-@blp.route("/<int:role_id>")
+@blp.route("/<string:role_id>")
 class RoleResource(MethodView):
     @blp.response(200, RoleSchema)
     def get(self, role_id):

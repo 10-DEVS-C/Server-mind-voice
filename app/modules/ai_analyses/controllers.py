@@ -22,7 +22,7 @@ class AiAnalysisList(MethodView):
         analysis_id = AiAnalysisService.create(new_data)
         return AiAnalysisService.get_by_id(analysis_id)
 
-@blp.route("/<int:analysis_id>")
+@blp.route("/<string:analysis_id>")
 class AiAnalysisResource(MethodView):
     @blp.response(200, AiAnalysisSchema)
     @jwt_required()

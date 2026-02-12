@@ -22,7 +22,7 @@ class FileList(MethodView):
         file_id = FileService.create(new_data)
         return FileService.get_by_id(file_id)
 
-@blp.route("/<int:file_id>")
+@blp.route("/<string:file_id>")
 class FileResource(MethodView):
     @blp.response(200, FileSchema)
     @jwt_required()

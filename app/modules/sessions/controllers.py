@@ -22,7 +22,7 @@ class SessionList(MethodView):
         session_id = SessionService.create(new_data)
         return SessionService.get_by_id(session_id)
 
-@blp.route("/<int:session_id>")
+@blp.route("/<string:session_id>")
 class SessionResource(MethodView):
     @blp.response(200, SessionSchema)
     @jwt_required()

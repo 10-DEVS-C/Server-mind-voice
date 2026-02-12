@@ -22,7 +22,7 @@ class TranscriptionList(MethodView):
         transcription_id = TranscriptionService.create(new_data)
         return TranscriptionService.get_by_id(transcription_id)
 
-@blp.route("/<int:transcription_id>")
+@blp.route("/<string:transcription_id>")
 class TranscriptionResource(MethodView):
     @blp.response(200, TranscriptionSchema)
     @jwt_required()

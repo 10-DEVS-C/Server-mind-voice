@@ -22,7 +22,7 @@ class MindmapList(MethodView):
         mindmap_id = MindmapService.create(new_data)
         return MindmapService.get_by_id(mindmap_id)
 
-@blp.route("/<int:mindmap_id>")
+@blp.route("/<string:mindmap_id>")
 class MindmapResource(MethodView):
     @blp.response(200, MindmapSchema)
     @jwt_required()

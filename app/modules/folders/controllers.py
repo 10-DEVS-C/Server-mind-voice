@@ -22,7 +22,7 @@ class FolderList(MethodView):
         folder_id = FolderService.create(new_data)
         return FolderService.get_by_id(folder_id)
 
-@blp.route("/<int:folder_id>")
+@blp.route("/<string:folder_id>")
 class FolderResource(MethodView):
     @blp.response(200, FolderSchema)
     @jwt_required()

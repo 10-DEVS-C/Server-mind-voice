@@ -22,7 +22,7 @@ class DocumentList(MethodView):
         document_id = DocumentService.create(new_data)
         return DocumentService.get_by_id(document_id)
 
-@blp.route("/<int:document_id>")
+@blp.route("/<string:document_id>")
 class DocumentResource(MethodView):
     @blp.response(200, DocumentSchema)
     @jwt_required()

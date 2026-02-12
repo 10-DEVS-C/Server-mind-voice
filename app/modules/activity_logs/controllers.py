@@ -22,7 +22,7 @@ class ActivityLogList(MethodView):
         log_id = ActivityLogService.create(new_data)
         return ActivityLogService.get_by_id(log_id)
 
-@blp.route("/<int:log_id>")
+@blp.route("/<string:log_id>")
 class ActivityLogResource(MethodView):
     @blp.response(200, ActivityLogSchema)
     @jwt_required()

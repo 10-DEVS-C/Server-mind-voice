@@ -22,7 +22,7 @@ class TagList(MethodView):
         tag_id = TagService.create(new_data)
         return TagService.get_by_id(tag_id)
 
-@blp.route("/<int:tag_id>")
+@blp.route("/<string:tag_id>")
 class TagResource(MethodView):
     @blp.response(200, TagSchema)
     @jwt_required()
