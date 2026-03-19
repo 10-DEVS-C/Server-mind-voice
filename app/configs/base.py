@@ -32,6 +32,7 @@ class BaseConfig:
     # Load keys
     _basedir = os.path.abspath(os.path.dirname(__file__))
     _rootdir = os.path.dirname(os.path.dirname(_basedir))
+    UPLOAD_FOLDER = os.path.join(_rootdir, "uploads")
     
     with open(os.path.join(_rootdir, "keys", "private.pem"), "rb") as f:
         JWT_PRIVATE_KEY = f.read()

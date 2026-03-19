@@ -1,4 +1,4 @@
-from flask import Flask, redirect
+from flask import Flask, redirect, send_from_directory
 from .configs.development import DevelopmentConfig
 from .configs.production import ProductionConfig
 from .extensions import mongo, api, jwt, cors, limiter
@@ -61,8 +61,14 @@ def create_app(config_class=None):
     register_error_handlers(app)
     register_jwt_callbacks(jwt)
 
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
     @app.route("/")
     def index():
         return redirect("/swagger-ui")
+
+    @app.route("/uploads/<path:filename>")
+    def uploaded_file(filename):
+        return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
     return app
