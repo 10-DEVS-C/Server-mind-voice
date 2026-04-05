@@ -1,7 +1,7 @@
 from flask import Flask, redirect
 from .configs.development import DevelopmentConfig
 from .configs.production import ProductionConfig
-from .extensions import mongo, api, jwt, cors, limiter
+from .extensions import mongo, api, jwt, cors, limiter, socketio
 from .middlewares.error_handler import register_error_handlers
 from .middlewares.auth import register_jwt_callbacks
 from .modules.users.controllers import blp as users_blp
@@ -18,6 +18,8 @@ from .modules.documents.controllers import blp as documents_blp
 from .modules.mindmaps.controllers import blp as mindmaps_blp
 from .modules.sessions.controllers import blp as sessions_blp
 from .modules.activity_logs.controllers import blp as activity_logs_blp
+from .modules.mindvoice_api.controllers import blp as mindvoice_api_blp
+from .modules.mindmaps_sockets.controllers import blp as mindmaps_sockets_blp
 import os
 
 def create_app(config_class=None):
@@ -37,6 +39,7 @@ def create_app(config_class=None):
     jwt.init_app(app)
     cors.init_app(app)
     limiter.init_app(app)
+    socketio.init_app(app)
     
     # Initialize API with Flask-Smorest
     api.init_app(app)
@@ -56,10 +59,16 @@ def create_app(config_class=None):
     api.register_blueprint(mindmaps_blp, url_prefix="/mindmaps")
     api.register_blueprint(sessions_blp, url_prefix="/sessions")
     api.register_blueprint(activity_logs_blp, url_prefix="/activity-logs")
+    api.register_blueprint(mindvoice_api_blp, url_prefix="/mindvoice-api")
+    api.register_blueprint(mindmaps_sockets_blp, url_prefix="/mindmaps-sockets-docs")
 
     # Register Middlewares
     register_error_handlers(app)
     register_jwt_callbacks(jwt)
+
+    # Register WebSockets Events
+    with app.app_context():
+        from .modules.mindmaps_sockets import sockets
 
     @app.route("/")
     def index():
