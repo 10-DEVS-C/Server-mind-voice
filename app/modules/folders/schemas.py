@@ -8,3 +8,6 @@ class FolderSchema(Schema):
     name = fields.String(required=True)
     parentFolderId = fields.String(allow_none=True, load_default=None, validate=validate_object_id)
     createdAt = fields.DateTime(dump_only=True)
+
+class FolderQueryArgsSchema(Schema):
+    name = fields.String(required=False, metadata={"description": "Filtro dinámico de búsqueda parcial para el nombre (Regex inteligente)"})

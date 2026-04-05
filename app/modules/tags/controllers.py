@@ -2,7 +2,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required
 from bson import ObjectId
-from .schemas import TagSchema
+from .schemas import TagSchema, TagQueryArgsSchema
 from .services import TagService
 from app.core.auth_utils import is_admin, get_current_user_id
 
@@ -10,9 +10,10 @@ blp = Blueprint("tags", __name__, description="Operations on tags")
 
 @blp.route("/")
 class TagList(MethodView):
+    @blp.arguments(TagQueryArgsSchema, location="query")
     @blp.response(200, TagSchema(many=True))
     @jwt_required()
-    def get(self):
+    def get(self, query_args):
         """List tags: Global tags (no userId) + User's tags"""
         if is_admin():
             return TagService.get_all()

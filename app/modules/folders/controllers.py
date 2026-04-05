@@ -2,7 +2,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required
 from bson import ObjectId
-from .schemas import FolderSchema
+from .schemas import FolderSchema, FolderQueryArgsSchema
 from .services import FolderService
 from app.core.auth_utils import is_admin, get_current_user_id, check_ownership
 
@@ -10,9 +10,10 @@ blp = Blueprint("folders", __name__, description="Operations on folders")
 
 @blp.route("/")
 class FolderList(MethodView):
+    @blp.arguments(FolderQueryArgsSchema, location="query")
     @blp.response(200, FolderSchema(many=True))
     @jwt_required()
-    def get(self):
+    def get(self, query_args):
         """List all folders"""
         query = {} if is_admin() else {"userId": ObjectId(get_current_user_id())}
         return FolderService.get_all(query)
