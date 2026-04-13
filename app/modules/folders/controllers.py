@@ -23,8 +23,10 @@ class FolderList(MethodView):
     @jwt_required()
     def post(self, new_data):
         """Create a new folder"""
-        if not is_admin() or 'userId' not in new_data:
-            new_data['userId'] = get_current_user_id()
+        if is_admin() and 'userId' in new_data and new_data['userId']:
+            new_data['userId'] = ObjectId(new_data['userId'])
+        else:
+            new_data['userId'] = ObjectId(get_current_user_id())
         folder_id = FolderService.create(new_data)
         return FolderService.get_by_id(folder_id)
 

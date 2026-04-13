@@ -13,7 +13,7 @@ try:
 except ImportError:
     HAS_DOCX = False
 
-GEMINI_API_KEY = os.environ.get("VITE_GEMINI_API_KEY", "")
+GEMINI_API_KEY = os.getenv("VITE_GEMINI_API_KEY", "")
 GEMINI_MODEL = "gemini-2.5-flash"
 
 PROMPT_MAESTRO = """Eres el motor de análisis de MindVoice AI.
@@ -76,19 +76,31 @@ class MindVoiceService:
 
     @staticmethod
     def llamar_gemini_texto(api_key, prompt, extracted_text, model=GEMINI_MODEL):
+        print("API Key: ", api_key)
+        print("Prompt: ", prompt)
+        print("Texto: ", extracted_text)
         if not api_key:
             raise ValueError("Se requiere una API Key de Gemini válida.")
+
+
+        
         endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
         body = {
-            "contents": [{"role": "user", "parts": [{"text": f"{prompt}\n\nCONTENIDO A ANALIZAR:\n{extracted_text}"}]}],
+            "contents": [{"role": "user", "parts": [{"text": f"{prompt}\n\nCONTENIDO A ANALIZAR:\n{extracted_text}"}] }],
             "generationConfig": {"responseMimeType": "application/json", "temperature": 0.2}
         }
+        print("Endpoint: ", endpoint)
+        print("Body: ", body)
+
         res = requests.post(endpoint, headers={"Content-Type": "application/json"}, json=body)
+        print("Respuesta de Gemini: ", res.json())
         if not res.ok:
             raise Exception(f"Gemini devolvió {res.status_code}: {res.text}")
         try:
             return res.json()["candidates"][0]["content"]["parts"][0]["text"]
         except (KeyError, IndexError):
+            print("Error al obtener la respuesta de Gemini.")
+            print(res.json())
             return "{}"
 
     @staticmethod

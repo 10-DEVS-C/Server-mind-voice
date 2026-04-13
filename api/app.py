@@ -194,6 +194,7 @@ def endpoint_extract():
 @app.route("/api/analyze/text", methods=["POST"])
 def endpoint_analyze_text():
     """Ruta principal para procesar texto usando Gemini IA"""
+    print("Llamando a endpoint_analyze_text") 
     data = request.get_json()
     if not data or "text" not in data:
         return jsonify({"error": "Se esperaba JSON con propiedad 'text'."}), 400
@@ -203,7 +204,9 @@ def endpoint_analyze_text():
     
     try:
         # Llamar a Gemini Text
+        print("Llamando a Gemini Text")
         respuesta_raw = llamar_gemini_texto(api_key, PROMPT_MAESTRO, texto)
+        print("Respuesta de Gemini Text: ", respuesta_raw)
         # Parseamos el JSON seguro
         resultado = json.loads(respuesta_raw)
         return jsonify(resultado)
