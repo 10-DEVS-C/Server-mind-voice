@@ -19,8 +19,34 @@ class BaseService:
 
     @classmethod
     def get_all(cls, query: Dict[str, Any] = None) -> List[Dict[str, Any]]:
-        query = query or {}
-        cursor = cls.get_collection().find(query)
+        from flask import request, has_request_context
+        
+        final_query = query or {}
+        url_query = {}
+        
+        if has_request_context():
+            for k, v in request.args.items():
+                if k in ['page', 'limit', 'sort', 'skip']: 
+                    continue
+                
+                try:
+                    # Convierte en ObjectId estricto cualquier string de 24 hex chars (ids)
+                    if len(v) == 24:
+                        url_query[k] = ObjectId(v)
+                        continue
+                except Exception:
+                    pass
+                
+                url_query[k] = {"$regex": v, "$options": "i"}
+                
+        if url_query:
+            if final_query:
+                # Si hay una consulta base de seguridad (ej. restricción de userId), sumamos los filtros sin reemplazar
+                final_query = {"$and": [final_query, url_query]}
+            else:
+                final_query = url_query
+                
+        cursor = cls.get_collection().find(final_query)
         return list(cursor)
 
     @classmethod

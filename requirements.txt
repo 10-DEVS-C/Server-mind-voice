@@ -7,3 +7,10 @@ flask-limiter
 marshmallow
 python-dotenv
 cryptography
+requests
+PyPDF2
+python-docx
+Flask-SocketIO
+pytest
+pytest-flask
+mongomock
