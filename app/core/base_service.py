@@ -65,7 +65,8 @@ class BaseService:
                 {"_id": query_id},
                 {"$set": data}
             )
-            return result.modified_count > 0
+            # matched_count > 0 means the document exists, even if values are identical.
+            return result.matched_count > 0
         except Exception:
             return False
 

@@ -9,8 +9,41 @@ import os
 from .schemas import AudioSchema
 from .services import AudioService
 from app.core.auth_utils import is_admin, get_current_user_id, check_ownership
+from app.modules.folders.services import FolderService
+from app.modules.tags.services import TagService
 
 blp = Blueprint("audios", __name__, description="Operations on audios")
+
+
+def _validate_audio_relations(data):
+    current_user = get_current_user_id()
+    folder_id = data.get("folderId") if "folderId" in data else None
+
+    if "folderId" in data and folder_id:
+        folder = FolderService.get_by_id(folder_id)
+        if not folder:
+            abort(400, message="Folder no existe")
+        if str(folder.get("userId")) != str(current_user) and not is_admin():
+            abort(403, message="No tienes permisos sobre esa carpeta")
+
+    if "tagIds" not in data:
+        return
+
+    tag_ids = data.get("tagIds") or []
+    validated_tag_ids = []
+
+    for tag_id in tag_ids:
+        tag = TagService.get_by_id(tag_id)
+        if not tag:
+            abort(400, message=f"Tag inválido: {tag_id}")
+
+        tag_user_id = tag.get("userId")
+        if tag_user_id is not None and str(tag_user_id) != str(current_user) and not is_admin():
+            abort(403, message=f"No tienes permisos sobre el tag: {tag_id}")
+
+        validated_tag_ids.append(tag_id)
+
+    data["tagIds"] = validated_tag_ids
 
 @blp.route("/")
 class AudioList(MethodView):
@@ -28,6 +61,7 @@ class AudioList(MethodView):
         """Create a new audio record"""
         if not is_admin() or 'userId' not in new_data:
             new_data['userId'] = get_current_user_id()
+        _validate_audio_relations(new_data)
         audio_id = AudioService.create(new_data)
         return AudioService.get_by_id(audio_id)
 
@@ -44,9 +78,20 @@ class AudioUpload(MethodView):
         duration = request.form.get("duration")
         if duration is None:
             abort(400, message="Duration is required")
+        try:
+            duration_value = int(duration)
+            if duration_value < 0:
+                abort(400, message="Duration must be >= 0")
+        except ValueError:
+            abort(400, message="Duration must be an integer")
 
         title = request.form.get("title") or audio_file.filename
         transcription = request.form.get("transcription")
+        folder_id = request.form.get("folderId")
+        raw_tag_ids = request.form.get("tagIds")
+        tag_ids = []
+        if raw_tag_ids:
+            tag_ids = [tid.strip() for tid in raw_tag_ids.split(",") if tid.strip()]
         extension = os.path.splitext(secure_filename(audio_file.filename))[1] or ".m4a"
 
         audio_dir = os.path.join(current_app.config["UPLOAD_FOLDER"], "audios")
@@ -57,14 +102,19 @@ class AudioUpload(MethodView):
         audio_file.save(absolute_path)
 
         relative_path = f"audios/{filename}"
-        audio_id = AudioService.create({
+        audio_data = {
             "userId": get_current_user_id(),
             "title": title,
             "filePath": relative_path,
-            "duration": int(duration),
+            "duration": duration_value,
             "format": extension.replace(".", "") or "m4a",
             "transcription": transcription,
-        })
+            "folderId": folder_id,
+            "tagIds": tag_ids,
+        }
+
+        _validate_audio_relations(audio_data)
+        audio_id = AudioService.create(audio_data)
         return AudioService.get_by_id(audio_id)
 
 @blp.route("/<string:audio_id>")
@@ -91,6 +141,7 @@ class AudioResource(MethodView):
 
         update_data.pop('userId', None)
         update_data.pop('filePath', None)
+        _validate_audio_relations(update_data)
 
         if not AudioService.update(audio_id, update_data):
             abort(404, message="Audio not found")

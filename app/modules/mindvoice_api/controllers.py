@@ -6,7 +6,7 @@ import json
 import base64
 
 from bson import ObjectId
-from app.core.auth_utils import get_current_user_id
+from app.core.auth_utils import get_current_user_id, check_ownership
 from app.modules.ai_analyses.services import AiAnalysisService
 from app.modules.transcriptions.services import TranscriptionService
 
@@ -42,7 +42,6 @@ class AnalyzeTextResource(MethodView):
     @jwt_required()
     def post(self, data):
         """Analyze text with MindVoice AI"""
-        print("Llamando a Gemini")
         texto = data.get("text")
         transcription_id = data.get("transcriptionId")
         api_key = data.get("api_key") or GEMINI_API_KEY
@@ -52,6 +51,7 @@ class AnalyzeTextResource(MethodView):
             db_transcription = TranscriptionService.get_by_id(transcription_id)
             if not db_transcription:
                 abort(404, message="La transcripcion especificada no existe en la base de datos.")
+            check_ownership(db_transcription)
             if not texto:
                 texto = db_transcription.get("text", "")
                 
@@ -59,10 +59,7 @@ class AnalyzeTextResource(MethodView):
             abort(400, message="Debes proporcionar 'text' o apuntar a un 'transcriptionId' que contenga texto.")
 
         try:
-            print("API Key: ", api_key)
-            print("Texto: ", texto)
             respuesta_raw = MindVoiceService.llamar_gemini_texto(api_key, PROMPT_MAESTRO, texto)
-            print("Respuesta de Gemini: ", respuesta_raw)
             resultado_json = json.loads(respuesta_raw)
             
             # GUARDAR EL ANALISIS RESULTANTE
@@ -99,6 +96,12 @@ class AnalyzeAudioResource(MethodView):
             
             # GUARDAR EL ANALISIS MULTIMODAL
             transcription_id = request.form.get("transcriptionId")
+            if transcription_id:
+                db_transcription = TranscriptionService.get_by_id(transcription_id)
+                if not db_transcription:
+                    abort(404, message="La transcripcion especificada no existe en la base de datos.")
+                check_ownership(db_transcription)
+
             ai_data = {
                 "userId": ObjectId(get_current_user_id()),
                 "transcriptionId": ObjectId(transcription_id) if transcription_id else None,

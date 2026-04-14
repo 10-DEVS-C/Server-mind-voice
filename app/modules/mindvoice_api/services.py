@@ -76,9 +76,6 @@ class MindVoiceService:
 
     @staticmethod
     def llamar_gemini_texto(api_key, prompt, extracted_text, model=GEMINI_MODEL):
-        print("API Key: ", api_key)
-        print("Prompt: ", prompt)
-        print("Texto: ", extracted_text)
         if not api_key:
             raise ValueError("Se requiere una API Key de Gemini válida.")
 
@@ -89,18 +86,12 @@ class MindVoiceService:
             "contents": [{"role": "user", "parts": [{"text": f"{prompt}\n\nCONTENIDO A ANALIZAR:\n{extracted_text}"}] }],
             "generationConfig": {"responseMimeType": "application/json", "temperature": 0.2}
         }
-        print("Endpoint: ", endpoint)
-        print("Body: ", body)
-
         res = requests.post(endpoint, headers={"Content-Type": "application/json"}, json=body)
-        print("Respuesta de Gemini: ", res.json())
         if not res.ok:
             raise Exception(f"Gemini devolvió {res.status_code}: {res.text}")
         try:
             return res.json()["candidates"][0]["content"]["parts"][0]["text"]
         except (KeyError, IndexError):
-            print("Error al obtener la respuesta de Gemini.")
-            print(res.json())
             return "{}"
 
     @staticmethod
