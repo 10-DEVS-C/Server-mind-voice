@@ -98,23 +98,80 @@ class MindVoiceService:
     def llamar_gemini_audio(api_key, prompt, audio_base64, mime_type, model=GEMINI_MODEL):
         if not api_key:
             raise ValueError("Se requiere una API Key de Gemini válida.")
+
         endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        
+        # Construcción del body según la documentación oficial de Gemini 1.5
         body = {
             "contents": [
                 {
                     "role": "user",
                     "parts": [
-                        {"text": f"{prompt}\n\nEste input es audio. Primero transcribe y luego analiza."},
+                        {"text": f"{prompt}\n\nEste input es audio. Por favor transcribe y analiza siguiendo el formato JSON solicitado."},
                         {"inlineData": {"mimeType": mime_type, "data": audio_base64}}
                     ]
                 }
             ],
-            "generationConfig": {"responseMimeType": "application/json", "temperature": 0.2}
+            "generationConfig": {
+                "responseMimeType": "application/json",
+                "temperature": 0.2
+            }
         }
+
         res = requests.post(endpoint, headers={"Content-Type": "application/json"}, json=body)
+        
         if not res.ok:
-            raise Exception(f"Gemini devolvió {res.status_code}: {res.text}")
+            # Esto imprimirá el error 400 detallado en tu consola
+            print(f"DETALLE ERROR API: {res.text}")
+            raise Exception(f"Gemini Error: {res.json().get('error', {}).get('message', 'Error desconocido')}")
+
         try:
-            return res.json()["candidates"][0]["content"]["parts"][0]["text"]
+            data = res.json()
+            # Verificar que existan candidatos (si el audio es muy corto o silencioso, Gemini puede bloquearlo)
+            if "candidates" in data and len(data["candidates"]) > 0:
+                return data["candidates"][0]["content"]["parts"][0]["text"]
+            return "{}"
         except (KeyError, IndexError):
             return "{}"
+            if not api_key:
+                raise ValueError("Se requiere una API Key de Gemini válida.")
+            
+            # Limpieza de MimeType: A veces llega como 'audio/mpeg' y Gemini prefiere 'audio/mp3'
+            # o llega con parámetros extra. Asegúrate de que sea limpio.
+            clean_mime = mime_type.split(';')[0].strip()
+
+            endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+            
+            body = {
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {"text": f"{prompt}\n\nAnaliza este audio."},
+                            {"inlineData": {"mimeType": clean_mime, "data": audio_base64}}
+                        ]
+                    }
+                ],
+                "generationConfig": {
+                    "responseMimeType": "application/json", 
+                    "temperature": 0.2
+                }
+            }
+
+            res = requests.post(endpoint, headers={"Content-Type": "application/json"}, json=body)
+            
+            # IMPORTANTE: Ver qué error exacto da Google antes de intentar parsear
+            if not res.ok:
+                error_details = res.json()
+                print(f"DEBUG Error Gemini: {error_details}") # Esto te dirá si el audio es "invalid"
+                raise Exception(f"Gemini Error {res.status_code}: {error_details.get('error', {}).get('message', 'Unknown error')}")
+
+            try:
+                response_data = res.json()
+                # Verificar si la respuesta fue bloqueada por seguridad (Safety Filters)
+                if 'candidates' not in response_data or not response_data['candidates']:
+                    return json.dumps({"error": "No se generó respuesta, posible bloqueo de contenido o audio no legible"})
+                    
+                return response_data["candidates"][0]["content"]["parts"][0]["text"]
+            except (KeyError, IndexError):
+                return "{}"

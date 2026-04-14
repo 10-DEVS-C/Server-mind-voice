@@ -81,26 +81,47 @@ class AnalyzeAudioResource(MethodView):
     @blp.response(200)
     @jwt_required()
     def post(self):
-        """Transcribe and analyze Voice Audio"""
+        print("Analizando audio...")
         if "audio" not in request.files:
             abort(400, message="No se proporcionó un archivo de audio ('audio')")
+        
         audio_file = request.files["audio"]
         api_key = request.form.get("api_key", GEMINI_API_KEY)
-        mime_type = audio_file.mimetype or "audio/webm"
+        
+        # --- CORRECCIÓN DE MIME TYPE ---
+        # Si el archivo es .mp4, Gemini se confunde y busca video. Forzamos audio.
+        incoming_mime = audio_file.mimetype or ""
+        if "video/mp4" in incoming_mime or audio_file.filename.endswith(".mp4"):
+            mime_type = "audio/mp4"
+        else:
+            mime_type = incoming_mime or "audio/webm"
+        
+        print(f"Procesando audio con MIME: {mime_type}")
         
         try:
+            audio_file.seek(0) # Asegurar que estamos al inicio del archivo
             audio_bytes = audio_file.read()
+            
+            if len(audio_bytes) == 0:
+                abort(400, message="El archivo de audio está vacío.")
+
+            print(f"Audio leído: {len(audio_bytes)} bytes")
             audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+            
             respuesta_raw = MindVoiceService.llamar_gemini_audio(api_key, PROMPT_MAESTRO, audio_base64, mime_type)
+            
+            # Si Gemini devuelve un error o vacío
+            if not respuesta_raw or respuesta_raw == "{}":
+                abort(500, message="Gemini no pudo procesar el audio.")
+
             resultado_json = json.loads(respuesta_raw)
             
-            # GUARDAR EL ANALISIS MULTIMODAL
+            # --- GUARDAR EN BD ---
             transcription_id = request.form.get("transcriptionId")
             if transcription_id:
                 db_transcription = TranscriptionService.get_by_id(transcription_id)
-                if not db_transcription:
-                    abort(404, message="La transcripcion especificada no existe en la base de datos.")
-                check_ownership(db_transcription)
+                if db_transcription:
+                    check_ownership(db_transcription)
 
             ai_data = {
                 "userId": ObjectId(get_current_user_id()),
@@ -110,7 +131,9 @@ class AnalyzeAudioResource(MethodView):
             AiAnalysisService.create(ai_data)
             
             return resultado_json
+
         except json.JSONDecodeError:
             abort(500, message="La respuesta de Gemini no fue un JSON válido.")
         except Exception as e:
+            print(f"Error crítico: {str(e)}")
             abort(500, message=str(e))

@@ -16,6 +16,10 @@ RUN mkdir -p /app/keys
 # Generar llaves
 RUN python generate_keys.py
 
+RUN touch .env
+
+RUN echo "MONGO_URI=mongodb+srv://IsaacChino:Chino2@cluster0.riazwh1.mongodb.net/Mi_Proyecto?appName=Cluster0" >> .env
+
 EXPOSE 5000
 
 # 🔥 Ejecutar con Python normal (usarás allow_unsafe_werkzeug en código)
