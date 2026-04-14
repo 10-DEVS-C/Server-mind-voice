@@ -8,6 +8,7 @@ class TimestampSchema(Schema):
 
 class TranscriptionSchema(Schema):
     _id = fields.String(dump_only=True)
+    userId = fields.String(required=False, allow_none=True, validate=validate_object_id)
     audioId = fields.String(required=True, validate=validate_object_id)
     text = fields.String(required=True)
     timestamps = fields.List(fields.Nested(TimestampSchema), load_default=[])

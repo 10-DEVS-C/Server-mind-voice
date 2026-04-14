@@ -7,6 +7,8 @@ class TranscriptionService(BaseService):
 
     @classmethod
     def create(cls, data):
+        if 'userId' in data:
+            data['userId'] = ObjectId(data['userId'])
         if 'audioId' in data:
             data['audioId'] = ObjectId(data['audioId'])
         return super().create(data)
