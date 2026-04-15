@@ -89,12 +89,24 @@ class AnalyzeAudioResource(MethodView):
         api_key = request.form.get("api_key", GEMINI_API_KEY)
         
         # --- CORRECCIÓN DE MIME TYPE ---
-        # Si el archivo es .mp4, Gemini se confunde y busca video. Forzamos audio.
+        # Derivar el MIME type correcto según la extensión del archivo.
+        import os as _os
+        ext = _os.path.splitext(audio_file.filename or '')[1].lower()
+        _ext_mime = {
+            '.m4a': 'audio/mp4',
+            '.mp4': 'audio/mp4',
+            '.mp3': 'audio/mp3',
+            '.mpeg': 'audio/mpeg',
+            '.wav': 'audio/wav',
+            '.aac': 'audio/aac',
+            '.ogg': 'audio/ogg',
+            '.flac': 'audio/flac',
+            '.webm': 'audio/webm',
+            '.opus': 'audio/opus',
+        }
         incoming_mime = audio_file.mimetype or ""
-        if "video/mp4" in incoming_mime or audio_file.filename.endswith(".mp4"):
-            mime_type = "audio/mp4"
-        else:
-            mime_type = incoming_mime or "audio/webm"
+        # Priorizar extensión sobre MIME declarado (los clientes móviles son poco fiables)
+        mime_type = _ext_mime.get(ext) or (incoming_mime if incoming_mime and 'video' not in incoming_mime else None) or 'audio/mp4'
         
         print(f"Procesando audio con MIME: {mime_type}")
         
