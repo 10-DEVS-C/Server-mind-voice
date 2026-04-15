@@ -1,6 +1,9 @@
+from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required
+from bson import ObjectId
+from app.core.auth_utils import is_admin, get_current_user_id
 from .schemas import AiAnalysisSchema
 from .services import AiAnalysisService
 
@@ -12,7 +15,11 @@ class AiAnalysisList(MethodView):
     @jwt_required()
     def get(self):
         """List all AI analyses"""
-        return AiAnalysisService.get_all()
+        query = {} if is_admin() else {"userId": ObjectId(get_current_user_id())}
+        t_id = request.args.get("transcriptionId")
+        if t_id:
+            query["transcriptionId"] = ObjectId(t_id)
+        return AiAnalysisService.get_all(query)
 
     @blp.arguments(AiAnalysisSchema)
     @blp.response(201, AiAnalysisSchema)
