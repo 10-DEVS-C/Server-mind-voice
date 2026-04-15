@@ -2,13 +2,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 class User:
-    def __init__(self, username, email, password, roleId, name=None, status="active"):
+    def __init__(self, username, email, password, roleId, name=None, status="active", plan="basic"):
         self.username = username
         self.email = email
         self.passwordHash = generate_password_hash(password)
         self.name = name
         self.status = status
         self.roleId = roleId
+        self.plan = plan
         self.createdAt = datetime.utcnow()
         self.updatedAt = datetime.utcnow()
 
@@ -20,6 +21,7 @@ class User:
             "name": self.name,
             "status": self.status,
             "roleId": self.roleId,
+            "plan": self.plan,
             "createdAt": self.createdAt,
             "updatedAt": self.updatedAt
         }

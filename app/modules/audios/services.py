@@ -34,3 +34,12 @@ class AudioService(BaseService):
         cls._normalize_relations(data)
         data['updatedAt'] = datetime.utcnow()
         return super().update(item_id, data)
+
+    @classmethod
+    def count_today_by_user(cls, user_id):
+        from datetime import datetime, time
+        today_start = datetime.combine(datetime.utcnow().date(), time.min)
+        return cls.get_collection().count_documents({
+            "userId": ObjectId(user_id),
+            "createdAt": {"$gte": today_start}
+        })

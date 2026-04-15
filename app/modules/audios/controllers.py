@@ -11,9 +11,26 @@ from .services import AudioService
 from app.core.auth_utils import is_admin, get_current_user_id, check_ownership
 from app.modules.folders.services import FolderService
 from app.modules.tags.services import TagService
+from app.modules.users.services import UserService
 
 blp = Blueprint("audios", __name__, description="Operations on audios")
 
+
+
+def _check_plan_limits(user_id):
+    if is_admin():
+        return
+        
+    user = UserService.get_by_id(user_id)
+    if not user:
+        return
+        
+    plan = user.get('plan', 'basic')
+    limit = UserService.get_plan_limit(plan)
+    
+    current_count = AudioService.count_today_by_user(user_id)
+    if current_count >= limit:
+        abort(403, message=f"Has alcanzado tu límite diario de {limit} notas para el plan {plan.capitalize()}.")
 
 def _validate_audio_relations(data):
     current_user = get_current_user_id()
@@ -61,6 +78,10 @@ class AudioList(MethodView):
         """Create a new audio record"""
         if not is_admin() or 'userId' not in new_data:
             new_data['userId'] = get_current_user_id()
+        
+        user_id = new_data['userId']
+        _check_plan_limits(user_id)
+        
         _validate_audio_relations(new_data)
         audio_id = AudioService.create(new_data)
         return AudioService.get_by_id(audio_id)
@@ -112,6 +133,9 @@ class AudioUpload(MethodView):
             "folderId": folder_id,
             "tagIds": tag_ids,
         }
+
+        user_id = audio_data['userId']
+        _check_plan_limits(user_id)
 
         _validate_audio_relations(audio_data)
         audio_id = AudioService.create(audio_data)

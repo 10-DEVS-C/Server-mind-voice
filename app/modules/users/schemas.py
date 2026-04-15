@@ -8,6 +8,7 @@ class UserSchema(Schema):
     email = fields.Email(required=True)
     name = fields.String()
     status = fields.String()
+    plan = fields.String(dump_only=True)
     roleId = fields.String(validate=validate_object_id)
     createdAt = fields.DateTime(dump_only=True)
     updatedAt = fields.DateTime(dump_only=True)
@@ -17,6 +18,7 @@ class UserCreateSchema(Schema):
     email = fields.Email(required=True)
     password = fields.String(required=True, load_only=True)
     name = fields.String(required=True)
+    plan = fields.String(load_default="basic")
     roleId = fields.String(load_default="661d4a0b2f4a8a001c9a1a1a", validate=validate_object_id) # Default User Role ID
 
 class UserUpdateSchema(Schema):
@@ -25,6 +27,7 @@ class UserUpdateSchema(Schema):
     password = fields.String(load_only=True)
     name = fields.String(allow_none=True)
     status = fields.String()
+    plan = fields.String()
     roleId = fields.String(validate=validate_object_id)
 
 class UserLoginSchema(Schema):

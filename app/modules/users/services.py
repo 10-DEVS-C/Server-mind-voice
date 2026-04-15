@@ -18,7 +18,8 @@ class UserService(BaseService):
             email=data['email'],
             password=data['password'],
             name=data.get('name'),
-            roleId=roleId
+            roleId=roleId,
+            plan=data.get('plan', 'basic')
         )
         return cls.create(user.to_dict())
 
@@ -41,3 +42,12 @@ class UserService(BaseService):
         data = {k: v for k, v in data.items() if v is not None}
         
         return super().update(item_id, data)
+
+    @classmethod
+    def get_plan_limit(cls, plan):
+        limits = {
+            "basic": 5,
+            "professional": 25,
+            "business": 999999
+        }
+        return limits.get(str(plan or 'basic').lower(), 5)
