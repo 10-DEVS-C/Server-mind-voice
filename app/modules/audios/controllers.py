@@ -141,6 +141,13 @@ class AudioResource(MethodView):
 
         update_data.pop('userId', None)
         update_data.pop('filePath', None)
+
+        # Retain only fields explicitly sent in the request body to avoid
+        # overwriting title/transcription with schema load_defaults.
+        allowed_fields = {'title', 'format', 'transcription', 'folderId', 'tagIds'}
+        sent_keys = set(request.get_json(silent=True) or {}) & allowed_fields
+        update_data = {k: v for k, v in update_data.items() if k in sent_keys}
+
         _validate_audio_relations(update_data)
 
         if not AudioService.update(audio_id, update_data):
