@@ -1,3 +1,4 @@
+from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required
@@ -15,6 +16,9 @@ class TranscriptionList(MethodView):
     def get(self):
         """List all transcriptions"""
         query = {} if is_admin() else {"userId": ObjectId(get_current_user_id())}
+        audio_id = request.args.get("audioId")
+        if audio_id:
+            query["audioId"] = ObjectId(audio_id)
         return TranscriptionService.get_all(query)
 
     @blp.arguments(TranscriptionSchema)
