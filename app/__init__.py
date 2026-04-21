@@ -20,6 +20,7 @@ from .modules.sessions.controllers import blp as sessions_blp
 from .modules.activity_logs.controllers import blp as activity_logs_blp
 from .modules.mindvoice_api.controllers import blp as mindvoice_api_blp
 from .modules.mindmaps_sockets.controllers import blp as mindmaps_sockets_blp
+from .modules.payments.controllers import blp as payments_blp
 import os
 
 def create_app(config_class=None):
@@ -61,6 +62,7 @@ def create_app(config_class=None):
     api.register_blueprint(activity_logs_blp, url_prefix="/activity-logs")
     api.register_blueprint(mindvoice_api_blp, url_prefix="/mindvoice-api")
     api.register_blueprint(mindmaps_sockets_blp, url_prefix="/mindmaps-sockets-docs")
+    api.register_blueprint(payments_blp, url_prefix="/payments")
 
     # Register Middlewares
     register_error_handlers(app)

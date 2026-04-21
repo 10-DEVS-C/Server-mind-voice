@@ -5,11 +5,20 @@ from marshmallow import ValidationError
 def register_error_handlers(app):
     @app.errorhandler(HTTPException)
     def handle_http_exception(e):
+        # flask-smorest almacena el mensaje personalizado en e.data
+        if hasattr(e, 'data') and isinstance(e.data, dict):
+            message = e.data.get('message', e.description)
+            errors = e.data.get('errors')
+        else:
+            message = e.description
+            errors = None
         response = {
             "status": "error",
-            "message": e.description,
+            "message": message,
             "code": e.code
         }
+        if errors:
+            response["errors"] = errors
         return jsonify(response), e.code
 
     @app.errorhandler(ValidationError)
