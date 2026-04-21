@@ -43,6 +43,21 @@ class TranscriptionResource(MethodView):
         check_ownership(transcription)
         return transcription
 
+    @blp.arguments(TranscriptionSchema(partial=True))
+    @blp.response(200, TranscriptionSchema)
+    @jwt_required()
+    def put(self, update_data, transcription_id):
+        """Update transcription text"""
+        transcription = TranscriptionService.get_by_id(transcription_id)
+        if not transcription:
+            abort(404, message="Transcription not found")
+        check_ownership(transcription)
+        update_data.pop("userId", None)
+        update_data.pop("audioId", None)
+        if not TranscriptionService.update(transcription_id, update_data):
+            abort(404, message="Transcription not found")
+        return TranscriptionService.get_by_id(transcription_id)
+
     @blp.response(204)
     @jwt_required()
     def delete(self, transcription_id):
